@@ -1,0 +1,132 @@
+# rhel9-cis-scripts .gitignore file
+#
+
+## General Blob Patterns
+*.bz2
+*.gz
+*.gzip
+*.rar
+*.tgz
+*.tar
+*.zip
+
+## C extensions
+*.so
+
+## Eclipse Patterns
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+*.launch
+
+## External tool builders
+.externalToolBuilders/
+
+## Jupyter Patterns
+.ipynb_checkpoints/
+
+## Linux Patterns
+.directory
+
+## Logs
+geckodriver.log
+pip-log.txt
+
+## OSX Patterns
+.DS_Store
+packages
+Play.Tests/IntegrationTestUrl.cs
+
+## Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+## PyCharm Patterns
+.idea/
+
+## Python Patterns
+*.py[cod]
+
+## Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+## SQLite Patterns
+*.sqlite
+*.sqlite3
+
+## Sublime Text Patterns
+*.sublime-project
+*.sublime-workspace
+
+## Translations
+*.mo
+
+## Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+## Vagrant Patterns
+.vagrant/
+
+## Vim
+*~
+*.swp
+*.swo
+
+## Visual Studio Code
+*.code-workspace
+
+## Windows Patterns
+Desktop.ini
+Thumbs.db
+*.db
+
+## Python Megacourse Specific Patterns
+##  Note: this may break detecting changes to some existing files.
+python_megacourse/*index_frame.png
+python_megacourse/*Map*.html
+python_megacourse/*resized_images
+python_megacourse/*resized_images_moved
+python_megacourse/*.html
+python_megacourse/*virtual
+python_megacourse/*cs.html
+python_megacourse/*segment.json
+python_megacourse/*Times.csv
+python_megacourse/*output.csv
+
+## Learn Python with 100 Exercises Specific Patterns
+learn_python_with_100_exercises/all_exercises
+
+# Whitelist
+
+!learn_python_with_100_exercises/All-exercises.zip
+de421.bsp
+Leap_Second.dat
+deltat.preds
+deltat.data
+
