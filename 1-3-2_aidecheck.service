@@ -1,0 +1,12 @@
+# 1.3.2 Ensure filesystem integrity is regularly checked
+# Filepath: /etc/systemd/system/aidecheck.service
+
+[Unit]
+Description=Aide Check
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/aide --check
+
+[Install]
+WantedBy=multi-user.target
