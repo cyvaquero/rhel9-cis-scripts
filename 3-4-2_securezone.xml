@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This securezone.xml config should be saved as /etc/firewalld/zones/securezone.xml -->
+<zone target="DROP">
+    <description>For use with CIS Linux Benchmark. You do not trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
+    <service name="ssh"/>
+    <icmp-block name="destination-unreachable"/>
+    <icmp-block name="echo-reply"/>
+    <icmp-block name="echo-request"/>
+    <icmp-block name="fragmentation-needed"/>
+    <icmp-block name="packet-too-big"/>
+    <icmp-block name="parameter-problem"/>
+    <icmp-block name="port-unreachable"/>
+    <icmp-block name="neighbour-advertisement"/>
+    <icmp-block name="neighbour-solicitation"/>
+    <icmp-block name="router-advertisement"/>
+    <icmp-block name="router-solicitation"/>
+    <icmp-block name="time-exceeded"/>
+    <rule family="ipv4">
+        <source address="127.0.0.1"/>
+        <destination address="127.0.0.1" invert="True"/> <drop/>
+    </rule>
+    <rule family="ipv6">
+        <source address="::1"/>
+        <destination address="::1" invert="True"/>
+        <drop/>
+    </rule>
+    <icmp-block-inversion/>
+</zone>
