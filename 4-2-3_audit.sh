@@ -1,52 +1,77 @@
 #!/usr/bin/env bash
 
-# 3.4.2.4 Ensure host based firewall loopback traffic is configured
-# Filename: 3-4-2-4_remediate.sh
+# 4.2.3 Ensure all logfiles have appropriate permissions and ownership
+# Filename: 4-2-3_audit.sh
 
 {
-    l_hbfw=""
-    if systemctl is-enabled firewalld.service | grep -q 'enabled' && systemctl is-enabled nftables.service | grep -q 'enabled'; then
-        echo -e "\n - Error - Both FirewallD and NFTables are enabled\n - Please follow recommendation: \"Ensure a single firewall configuration utility is in use\""
-    elif ! systemctl is-enabled firewalld.service | grep -q 'enabled' && ! systemctl is-enabled nftables.service | grep -q 'enabled'; then
-        echo -e "\n - Error - Neither FirewallD or NFTables is enabled\n - Please follow recommendation: \"Ensure a single firewall configuration utility is in use\""
-    else
-        if systemctl is-enabled firewalld.service | grep -q 'enabled' && ! systemctl is-enabled nftables.service | grep -q 'enabled'; then
-            echo -e "\n - FirewallD is in use on the system" && l_hbfw="fwd"
-        elif ! systemctl is-enabled firewalld.service | grep -q 'enabled' && systemctl is-enabled nftables.service | grep -q 'enabled'; then
-            echo -e "\n - NFTables is in use on the system" && l_hbfw="nft"
-        fi
-        l_ipsaddr="$(nft list ruleset | awk '/filter_IN_public_deny|hook\s+input\s+/,/\}\s*(#.*)?$/' | grep -P -- 'ip\h+saddr')"
-        if ! nft list ruleset | awk '/hook\s+input\s+/,/\}\s*(#.*)?$/' | grep -Pq -- '\H+\h+"lo"\h+accept'; then
-            echo -e "\n - Enabling input to accept for loopback address"
-            if [ "$l_hbfw" = "fwd" ]; then
-                firewall-cmd --permanent --zone=trusted --add-interface=lo
-                firewall-cmd --reload
-            elif [ "$l_hbfw" = "nft" ]; then
-                nft add rule inet filter input iif lo accept
-            fi
-        fi
-        if ! grep -Pq -- 'ip\h+saddr\h+127\.0\.0\.0\/8\h+(counter\h+packets\h+\d+\h+bytes\h+\d+\h+)?drop' <<< "$l_ipsaddr" && ! grep -Pq -- 'ip\h+daddr\h+\!\=\h+127\.0\.0\.1\h+ip\h+saddr\h+127\.0\.0\.1\h+drop' <<< "$l_ipsaddr"; then
-            echo -e "\n - Setting IPv4 network traffic from loopback address to drop"
-            if [ "$l_hbfw" = "fwd" ]; then
-                firewall-cmd --permanent --add-rich-rule='rule family=ipv4 source address="127.0.0.1" destination not address="127.0.0.1" drop'
-                firewall-cmd --permanent --zone=trusted --add-rich-rule='rule family=ipv4 source address="127.0.0.1" destination not address="127.0.0.1" drop'
-                firewall-cmd --reload
-            elif [ "$l_hbfw" = "nft" ]; then
-                nft create rule inet filter input ip saddr 127.0.0.0/8 counter drop
-            fi
-        fi
-        if grep -Pq -- '^\h*0\h*$' /sys/module/ipv6/parameters/disable; then
-            l_ip6saddr="$(nft list ruleset | awk '/filter_IN_public_deny|hook input/,/}/' | grep 'ip6 saddr')"
-            if ! grep -Pq 'ip6\h+saddr\h+::1\h+(counter\h+packets\h+\d+\h+bytes\h+\d+\h+)?drop' <<< "$l_ip6saddr" && ! grep -Pq -- 'ip6\h+daddr\h+\!=\h+::1\h+ip6\h+saddr\h+::1\h+drop' <<< "$l_ip6saddr"; then
-                echo -e "\n - Setting IPv6 network traffic from loopback address to drop"
-                if [ "$l_hbfw" = "fwd" ]; then
-                    firewall-cmd --permanent --add-rich-rule='rule family=ipv6 source address="::1" destination not address="::1" drop'
-                    firewall-cmd --permanent --zone=trusted --add-rich-rule='rule family=ipv6 source address="::1" destination not address="::1" drop'
-                    firewall-cmd --reload
-                elif [ "$l_hbfw" = "nft" ]; then
-                    nft add rule inet filter input ip6 saddr ::1 counter drop
+    echo -e "\n- Start check - logfiles have appropriate permissions and ownership"
+    output=""
+    UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs) find /var/log -type f | (while read -r fname; do
+        bname="$(basename "$fname")"
+        fugname="$(stat -Lc "%U %G" "$fname")"
+        funame="$(awk '{print $1}' <<< "$fugname")"
+        fugroup="$(awk '{print $2}' <<< "$fugname")"
+        fuid="$(stat -Lc "%u" "$fname")"
+        fmode="$(stat -Lc "%a" "$fname")"
+        case "$bname" in
+            lastlog | lastlog.* | wtmp | wtmp.* | wtmp-* | btmp | btmp.* | btmp-* )
+                if ! grep -Pq -- '^\h*[0,2,4,6][0,2,4,6][0,4]\h*$' <<< "$fmode"; then
+                    output="$output\n- File: \"$fname\" mode: \"$fmode\"\n"
                 fi
-            fi
-        fi
+                if ! grep -Pq -- '^\h*root\h+(utmp|root)\h*$' <<< "$fugname"; then
+                    output="$output\n- File: \"$fname\" ownership: \"$fugname\"\n"
+                fi
+                ;;
+            secure | auth.log | syslog | messages )
+                if ! grep -Pq -- '^\h*[0,2,4,6][0,4]0\h*$' <<< "$fmode"; then
+                    output="$output\n- File: \"$fname\" mode: \"$fmode\"\n"
+                fi
+                if ! grep -Pq -- '^\h*(syslog|root)\h+(adm|root)\h*$' <<< "$fugname"; then
+                    output="$output\n- File: \"$fname\" ownership: \"$fugname\"\n"
+                fi
+                ;;
+            SSSD | sssd )
+                if ! grep -Pq -- '^\h*[0,2,4,6][0,2,4,6]0\h*$' <<< "$fmode"; then
+                    output="$output\n- File: \"$fname\" mode: \"$fmode\"\n"
+                fi
+                if ! grep -Piq -- '^\h*(SSSD|root)\h+(SSSD|root)\h*$' <<< "$fugname"; then
+                    output="$output\n- File: \"$fname\" ownership: \"$fugname\"\n"
+                fi
+                ;;
+            gdm | gdm3 )
+                if ! grep -Pq -- '^\h*[0,2,4,6][0,2,4,6]0\h*$' <<< "$fmode"; then
+                    output="$output\n- File: \"$fname\" mode: \"$fmode\"\n"
+                fi
+                if ! grep -Pq -- '^\h*(root)\h+(gdm3?|root)\h*$' <<< "$fugname"; then
+                    output="$output\n- File: \"$fname\" ownership: \"$fugname\"\n"
+                fi
+                ;;
+            *.journal | *.journal~ )
+                if ! grep -Pq -- '^\h*[0,2,4,6][0,4]0\h*$' <<< "$fmode"; then
+                    output="$output\n- File: \"$fname\" mode: \"$fmode\"\n"
+                fi
+                if ! grep -Pq -- '^\h*(root)\h+(systemd-journal|root)\h*$' <<< "$fugname"; then
+                    output="$output\n- File: \"$fname\" ownership: \"$fugname\"\n"
+                fi
+                ;;
+            * )
+                if ! grep -Pq -- '^\h*[0,2,4,6][0,4]0\h*$' <<< "$fmode"; then
+                    output="$output\n- File: \"$fname\" mode: \"$fmode\"\n"
+                fi
+                if [ "$fuid" -ge "$UID_MIN" ] || ! grep -Pq -- '(adm|root|'"$(id -gn "$funame")"')' <<< "$fugroup"; then
+                    if [ -n "$(awk -v grp="$fugroup" -F: '$1==grp {print $4}' /etc/group)" ] || ! grep -Pq '(syslog|root)' <<< "$funame"; then
+                        output="$output\n- File: \"$fname\" ownership: \"$fugname\"\n"
+                    fi
+                fi
+                ;;
+        esac
+    done
+    # If all files passed, then we pass
+    if [ -z "$output" ]; then
+        echo -e "\n- Audit Results:\n ** Pass **\n- All files in \"/var/log/\" have appropriate permissions and ownership\n"
+    else
+        # print the reason why we are failing
+        echo -e "\n- Audit Results:\n ** Fail **\n$output"
     fi
+    echo -e "- End check - logfiles have appropriate permissions and ownership\n"
 }
