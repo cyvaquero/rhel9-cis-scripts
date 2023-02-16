@@ -17,3 +17,9 @@
     COMBINED_DATA=( "${OLD_DATA[@]}" "${NEW_DATA[@]}" )
     printf '%s\n' "${COMBINED_DATA[@]}" | sort -u > "${AUDIT_RULE_FILE}"
 }
+
+augenrules --load
+
+if [[ $(auditctl -s | grep "enabled") =~ "2" ]]; then
+    printf "Reboot required to load rules\n"
+fi
