@@ -3,6 +3,7 @@
 # 4.1.3.6 Ensure use of privileged commands are collected
 # Filename: 4-1-3-6_remediate.sh
 
+[ -f /etc/audit/rules.d/privileged.rules ] && rm /etc/audit/rules.d/privileged.rules
 {
     UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
     AUDIT_RULE_FILE="/etc/audit/rules.d/50-privileged.rules"
@@ -15,7 +16,8 @@
     done
     readarray &> /dev/null -t OLD_DATA < "${AUDIT_RULE_FILE}"
     COMBINED_DATA=( "${OLD_DATA[@]}" "${NEW_DATA[@]}" )
-    printf '# 4.1.3.6 Ensure use of privileged commands are collected\n%s\n' "${COMBINED_DATA[@]}" | sort -u > "${AUDIT_RULE_FILE}"
+    printf '
+# 4.1.3.6 Ensure use of privileged commands are collected\n%s\n' "${COMBINED_DATA[@]}" | sort -u > "${AUDIT_RULE_FILE}"
 }
 
 augenrules --load
