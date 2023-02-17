@@ -5,7 +5,7 @@
 
 [ -f /etc/audit/rules.d/session.rules ] && rm /etc/audit/rules.d/session.rules
 printf "
-# 4.1.3.11 Ensure session initiation information is collected
+## 4.1.3.11 Ensure session initiation information is collected
 -w /var/run/utmp -p wa -k session
 -w /var/log/wtmp -p wa -k session
 -w /var/log/btmp -p wa -k session

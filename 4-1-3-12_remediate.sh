@@ -5,7 +5,7 @@
 
 [ -f /etc/audit/rules.d/logins.rules ] && rm /etc/audit/rules.d/logins.rules
 printf "
-# 4.1.3.12 Ensure login and logout events are collected
+## 4.1.3.12 Ensure login and logout events are collected
 -w /var/log/lastlog -p wa -k logins
 -w /var/run/faillock -p wa -k logins
 " > /etc/audit/rules.d/50-login.rules

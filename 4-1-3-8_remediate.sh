@@ -5,7 +5,7 @@
 
 [ -f /etc/audit/rules.d/audit_rules_usergroup_modification.rules ] && rm /etc/audit/rules.d/audit_rules_usergroup_modification.rules
 printf "
-# 4.1.3.8 Ensure events that modify user/group information are collected
+## 4.1.3.8 Ensure events that modify user/group information are collected
 -w /etc/group -p wa -k identity
 -w /etc/passwd -p wa -k identity
 -w /etc/gshadow -p wa -k identity

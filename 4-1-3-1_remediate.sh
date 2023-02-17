@@ -5,7 +5,7 @@
 
 [ -f /etc/audit/rules.d/actions.rules ] && rm /etc/audit/rules.d/actions.rules
 printf "
-# 4.1.3.1 Ensure changes to system administration scope (sudoers) is collected
+## 4.1.3.1 Ensure changes to system administration scope (sudoers) is collected
 -w /etc/sudoers -p wa -k actions
 -w /etc/sudoers.d -p wa -k actions
 " > /etc/audit/rules.d/50-scope.rules

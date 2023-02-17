@@ -5,7 +5,7 @@
 
 [ -f /etc/audit/rules.d/audit_rules_networkconfig_modification.rules ] && rm /etc/audit/rules.d/audit_rules_networkconfig_modification.rules
 printf "
-# 4.1.3.5 Ensure events that modify the system's network environment are collected
+## 4.1.3.5 Ensure events that modify the system's network environment are collected
 -a always,exit -F arch=b64 -S sethostname,setdomainname -k system-locale
 -a always,exit -F arch=b32 -S sethostname,setdomainname -k system-locale
 -w /etc/issue -p wa -k system-locale

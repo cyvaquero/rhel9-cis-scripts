@@ -5,7 +5,7 @@
 
 [ -f /etc/audit/rules.d/audit_time_rules.rules ] && rm /etc/audit/rules.d/audit_time_rules.rules
 printf "
-# 4.1.3.4 Ensure events that modify date and time information are collected
+## 4.1.3.4 Ensure events that modify date and time information are collected
 -a always,exit -F arch=b64 -S adjtimex,settimeofday,clock_settime -k time-change
 -a always,exit -F arch=b32 -S adjtimex,settimeofday,clock_settime -k time-change
 -w /etc/localtime -p wa -k time-change

@@ -17,7 +17,7 @@
     readarray &> /dev/null -t OLD_DATA < "${AUDIT_RULE_FILE}"
     COMBINED_DATA=( "${OLD_DATA[@]}" "${NEW_DATA[@]}" )
     printf '
-# 4.1.3.6 Ensure use of privileged commands are collected\n%s\n' "${COMBINED_DATA[@]}" | sort -u > "${AUDIT_RULE_FILE}"
+## 4.1.3.6 Ensure use of privileged commands are collected\n%s\n' "${COMBINED_DATA[@]}" | sort -u > "${AUDIT_RULE_FILE}"
 }
 
 augenrules --load
