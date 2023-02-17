@@ -3,6 +3,7 @@
 # 4.1.3.11 Ensure session initiation information is collected
 # Filename: 4-1-3-11_remediate.sh
 
+[ -f /etc/audit/rules.d/session.rules ] && rm /etc/audit/rules.d/session.rules
 printf "
 # 4.1.3.11 Ensure session initiation information is collected
 -w /var/run/utmp -p wa -k session

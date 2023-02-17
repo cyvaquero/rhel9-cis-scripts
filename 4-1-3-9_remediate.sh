@@ -3,6 +3,7 @@
 # 4.1.3.9 Ensure discretionary access control permission modification events are collected
 # Filename: 4-1-3-9_remediate.sh
 
+[ -f /etc/audit/rules.d/perm_mod.rules ] && rm /etc/audit/rules.d/perm_mod.rules
 {
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
 [ -n "${UID_MIN}" ] && printf "

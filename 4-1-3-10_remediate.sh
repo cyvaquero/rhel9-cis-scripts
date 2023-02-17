@@ -3,6 +3,7 @@
 # 4.1.3.10 Ensure successful file system mounts are collected
 # Filename: 4-1-3-10_remediate.sh
 
+[ -f /etc/audit/rules.d/mounts.rules ] && rm /etc/audit/rules.d/mounts.rules
 {
     UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
     [ -n "${UID_MIN}" ] && printf "

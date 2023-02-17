@@ -3,6 +3,7 @@
 # 4.1.3.12 Ensure login and logout events are collected
 # Filename: 4-1-3-12_remediate.sh
 
+[ -f /etc/audit/rules.d/logins.rules ] && rm /etc/audit/rules.d/logins.rules
 printf "
 # 4.1.3.12 Ensure login and logout events are collected
 -w /var/log/lastlog -p wa -k logins
