@@ -3,6 +3,8 @@
 # 4.1.3.3 Ensure events that modify the sudo log file are collected
 # Filename: 4-1-3-3_remediate.sh
 
+[ -n /etc/audit/rules.d/logins.rules ] && sed -i '/-w \/var\/log\/sudo\.log -p wa -k logins/d' /etc/audit/rules.d/logins.rules
+
 SUDO_LOG_FILE=$(grep -r logfile /etc/sudoers* | sed -e 's/.*logfile=//;s/,? .*//' -e 's/"//g')
 [ -n "${SUDO_LOG_FILE}" ] && printf "
 ## 4.1.3.3 Ensure events that modify the sudo log file are collected
