@@ -4,9 +4,8 @@
 # Filename: 4-1-3-20_remediate.sh
 
 [ -f /etc/audit/rules.d/immutable.rules ] && rm /etc/audit/rules.d/immutable.rules
-printf -- "
-## 4.1.3.20 Ensure the audit configuration is immutable
--e 2" >> /etc/audit/rules.d/99-finalize.rules
+printf -- "\n## 4.1.3.20 Ensure the audit configuration is immutable
+-e 2\n" > /etc/audit/rules.d/99-finalize.rules
 
 augenrules --load
 
